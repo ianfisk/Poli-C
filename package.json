@@ -1,0 +1,23 @@
+{
+	"name": "retry-policy",
+	"version": "0.0.1",
+	"description": "A fault tolerance utility for JavaScript.",
+	"main": "dist/retry-policy.js",
+	"types": "dist/retry-policy.d.ts",
+	"files": [
+		"dist/"
+	],
+	"author": "Ian Fisk <i.fisk32@gmail.com>",
+	"license": "MIT",
+	"scripts": {
+		"build": "rimraf ./dist && tsc",
+		"prettier": "prettier --write \"./**/*.ts\"",
+		"prettier-check": "prettier --list-different \"./**/*.ts\"",
+		"lint": "eslint --ext .ts . && yarn prettier-check"
+	},
+	"devDependencies": {
+		"prettier": "^1.14.2",
+		"rimraf": "^2.6.2",
+		"typescript": "^3.0.3"
+	}
+}
