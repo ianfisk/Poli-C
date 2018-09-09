@@ -12,8 +12,7 @@
 	"scripts": {
 		"build": "rimraf ./dist && tsc",
 		"prettier": "prettier --write \"./**/*.ts\"",
-		"prettier-check": "prettier --list-different \"./**/*.ts\"",
-		"lint": "eslint --ext .ts . && yarn prettier-check"
+		"prettier-check": "prettier --list-different \"./**/*.ts\""
 	},
 	"devDependencies": {
 		"prettier": "^1.14.2",
