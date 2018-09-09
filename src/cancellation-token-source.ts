@@ -7,27 +7,24 @@ export interface CancellationToken {
 export class CancellationTokenSource {
 	private _token: CancellationToken;
 	private _registeredCancelActions: (() => void)[] = [];
+	private _linkedTokenUnregisterCallbacks: (() => void)[] = [];
 	private _isCanceled: boolean = false;
 	private _isDisposed: boolean = false;
 
 	static createLinkedTokenSource(...tokens: CancellationToken[]): CancellationTokenSource {
-		let unregisterCallbacks: (() => void)[] = [];
-		const newTokenSource = new CancellationTokenSource();
+		const linkedTokenSource = new CancellationTokenSource();
+		for (let i = 0; i < tokens.length; i++) {
+			const token = tokens[i];
+			if (token.isCancellationRequested) {
+				linkedTokenSource.cancel();
+				break;
+			}
 
-		newTokenSource.token.register(() => {
-			unregisterCallbacks.forEach(unregister => unregister());
-			unregisterCallbacks = null;
-		});
-
-		if (tokens.find(token => token.isCancellationRequested)) {
-			newTokenSource.cancel();
-		} else {
-			tokens.forEach(token => {
-				unregisterCallbacks.push(token.register(() => newTokenSource.cancel()));
-			});
+			const unregister = token.register(() => linkedTokenSource.cancel());
+			linkedTokenSource._linkedTokenUnregisterCallbacks.push(unregister);
 		}
 
-		return newTokenSource;
+		return linkedTokenSource;
 	}
 
 	constructor() {
@@ -74,13 +71,17 @@ export class CancellationTokenSource {
 
 		this._isCanceled = true;
 		this._registeredCancelActions.forEach(cancelAction => cancelAction());
+		this._linkedTokenUnregisterCallbacks.forEach(unregister => unregister());
 		this._registeredCancelActions = [];
+		this._linkedTokenUnregisterCallbacks = [];
 	}
 
 	dispose() {
 		this._isDisposed = true;
 		this._token = null;
+		this._linkedTokenUnregisterCallbacks.forEach(unregister => unregister());
 		this._registeredCancelActions = [];
+		this._linkedTokenUnregisterCallbacks = [];
 	}
 
 	private assertNotDisposed() {
