@@ -6,9 +6,6 @@ type sleepDurationProvider =
 	| ((sleepDurationProviderArgs: { retryAttempt: number }) => number);
 
 export class RetryPolicy {
-	private _retryCount: number;
-	private _sleepDurationProvider: sleepDurationProvider;
-
 	static waitAndRetry({
 		retryCount,
 		sleepDurationProvider,
@@ -39,6 +36,9 @@ export class RetryPolicy {
 
 		return policy;
 	}
+
+	private _retryCount: number;
+	private _sleepDurationProvider: sleepDurationProvider;
 
 	async executeAsync(
 		asyncFunc: (ct: CancellationToken) => Promise<any>,

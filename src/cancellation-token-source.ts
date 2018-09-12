@@ -5,12 +5,6 @@ export interface CancellationToken {
 }
 
 export class CancellationTokenSource {
-	private _token: CancellationToken;
-	private _registeredCancelActions: (() => void)[] = [];
-	private _linkedTokenUnregisterCallbacks: (() => void)[] = [];
-	private _isCanceled: boolean = false;
-	private _isDisposed: boolean = false;
-
 	static createLinkedTokenSource(...tokens: CancellationToken[]): CancellationTokenSource {
 		const linkedTokenSource = new CancellationTokenSource();
 		for (let i = 0; i < tokens.length; i++) {
@@ -58,6 +52,12 @@ export class CancellationTokenSource {
 		};
 	}
 
+	private _token: CancellationToken;
+	private _registeredCancelActions: (() => void)[] = [];
+	private _linkedTokenUnregisterCallbacks: (() => void)[] = [];
+	private _isCanceled: boolean = false;
+	private _isDisposed: boolean = false;
+
 	get token() {
 		this.assertNotDisposed();
 		return this._token;
@@ -93,5 +93,5 @@ export class CancellationTokenSource {
 
 	private isCanceled = () => {
 		return this._isCanceled;
-	}
+	};
 }
