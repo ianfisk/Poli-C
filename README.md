@@ -121,6 +121,6 @@ const things = await policy.executeAsync(fetchThings);
 Additionally, a custom backoff algorithm can be used:
 
 ```js
-const policy = RetryPolicy.waitAndRetryForever({ retryCount: 3, sleepDurationProvider: ({ retryAttempt }) => 1000 * retryAttempt });
+const policy = RetryPolicy.waitAndRetry({ retryCount: 3, sleepDurationProvider: ({ retryAttempt }) => 1000 * retryAttempt });
 ```
 
