@@ -42,7 +42,10 @@ export class RetryPolicy {
 	private _isValidResult: (result: any) => boolean;
 
 	untilValidResult(resultValidator: (result: any) => boolean) {
-		validateResultValidator(resultValidator);
+		if (typeof resultValidator !== 'function') {
+			throw new Error('If provided, the result validator must be a function.');
+		}
+
 		this._isValidResult = resultValidator;
 		return this;
 	}
@@ -51,10 +54,6 @@ export class RetryPolicy {
 		asyncFunc: (ct: CancellationToken) => Promise<any>,
 		cancellationToken?: CancellationToken
 	): Promise<any> {
-		// validate private properties to ensure they haven't been reassigned
-		validateRetryCount(this._retryCount);
-		validateSleepDurationProvider(this._sleepDurationProvider);
-		validateResultValidator(this._isValidResult);
 		if (!asyncFunc || typeof asyncFunc !== 'function') {
 			throw new Error('asyncFunction must be provided.');
 		}
@@ -96,18 +95,12 @@ function validateRetryCount(retryCount: number) {
 	}
 }
 
-function validateSleepDurationProvider(sleepDurationProvider: sleepDurationProvider) {
+function validateSleepDurationProvider(sleepDurationProvider?: sleepDurationProvider) {
 	if (
 		sleepDurationProvider != null &&
 		typeof sleepDurationProvider !== 'function' &&
 		typeof sleepDurationProvider !== 'number'
 	) {
 		throw new Error('If provided, the sleep duration provider must be a function or number.');
-	}
-}
-
-function validateResultValidator(validator: (result: any) => boolean) {
-	if (validator != null && typeof validator !== 'function') {
-		throw new Error('If provided, the result validator must be a function.');
 	}
 }
