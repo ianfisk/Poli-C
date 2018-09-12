@@ -1,5 +1,5 @@
 import { CancellationToken } from './cancellation-token-source';
-import { sleep } from './utils';
+import { sleepAsync } from './utils';
 
 type sleepDurationProvider =
 	| number
@@ -39,14 +39,22 @@ export class RetryPolicy {
 
 	private _retryCount: number;
 	private _sleepDurationProvider: sleepDurationProvider;
+	private _isValidResult: (result: any) => boolean;
+
+	untilValidResult(resultValidator: (result: any) => boolean) {
+		validateResultValidator(resultValidator);
+		this._isValidResult = resultValidator;
+		return this;
+	}
 
 	async executeAsync(
 		asyncFunc: (ct: CancellationToken) => Promise<any>,
-		cancellationToken: CancellationToken
-	) {
+		cancellationToken?: CancellationToken
+	): Promise<any> {
 		// validate private properties to ensure they haven't been reassigned
 		validateRetryCount(this._retryCount);
 		validateSleepDurationProvider(this._sleepDurationProvider);
+		validateResultValidator(this._isValidResult);
 		if (!asyncFunc || typeof asyncFunc !== 'function') {
 			throw new Error('asyncFunction must be provided.');
 		}
@@ -57,10 +65,15 @@ export class RetryPolicy {
 			}
 
 			try {
-				return await asyncFunc(cancellationToken);
+				const result = await asyncFunc(cancellationToken);
+				if (!this._isValidResult || this._isValidResult(result)) {
+					return result;
+				}
 			} catch (e) {
-				await sleep(this.getSleepDuration(i + 1), cancellationToken);
+				// ignore
 			}
+
+			await sleepAsync(this.getSleepDuration(i + 1), cancellationToken);
 		}
 
 		return await asyncFunc(cancellationToken);
@@ -90,5 +103,11 @@ function validateSleepDurationProvider(sleepDurationProvider: sleepDurationProvi
 		typeof sleepDurationProvider !== 'number'
 	) {
 		throw new Error('If provided, the sleep duration provider must be a function or number.');
+	}
+}
+
+function validateResultValidator(validator: (result: any) => boolean) {
+	if (validator != null && typeof validator !== 'function') {
+		throw new Error('If provided, the result validator must be a function.');
 	}
 }
