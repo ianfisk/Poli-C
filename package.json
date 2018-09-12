@@ -1,9 +1,9 @@
 {
-	"name": "retry-policy",
+	"name": "retry-polly",
 	"version": "0.0.1",
 	"description": "A fault tolerance utility for JavaScript.",
-	"main": "dist/retry-policy.js",
-	"types": "dist/retry-policy.d.ts",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"files": [
 		"dist/"
 	],
