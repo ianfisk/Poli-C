@@ -1,14 +1,18 @@
-# RetryPolly
+# Poli-C
 
-A fault tolerance utility for JavaScript. Inspired by [Polly for .NET](https://github.com/App-vNext/Polly), this library's aim is to help applications handle transient failures in asynchronous actions.
+Poli-C (pronounced "policy") is a fault tolerance utility for JavaScript. Inspired by [Polly for .NET](https://github.com/App-vNext/Polly), this library's aim is to help applications handle transient failures in asynchronous actions.
 
-## Examples
+## RetryPolicy Examples
 
 ### Basic
 
 Retry forever
 
 ```js
+import { RetryPolicy } from 'poli-c';
+
+...
+
 const policy = RetryPolicy.waitAndRetryForever({ sleepDurationProvider: 1000 });
 
 async function fetchThings() {
