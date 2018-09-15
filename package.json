@@ -9,14 +9,25 @@
 	],
 	"author": "Ian Fisk <i.fisk32@gmail.com>",
 	"license": "MIT",
+	"keywords": [
+		"retry",
+		"policy",
+		"exponential",
+		"backoff",
+		"attempt"
+	],
 	"scripts": {
 		"build": "rimraf ./dist && tsc",
+		"test": "mocha --require ts-node/register \"src/**/__tests__/*.ts\"",
 		"prettier": "prettier --write \"./**/*.ts\"",
 		"prettier-check": "prettier --list-different \"./**/*.ts\""
 	},
 	"devDependencies": {
+		"expect": "^23.6.0",
+		"mocha": "^5.2.0",
 		"prettier": "^1.14.2",
 		"rimraf": "^2.6.2",
+		"ts-node": "^7.0.1",
 		"typescript": "^3.0.3"
 	}
 }
