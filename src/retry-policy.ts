@@ -1,4 +1,4 @@
-import { CancellationToken } from './cancellation-token-source';
+import { CancellationToken } from './cancellation';
 import { sleepAsync } from './utils';
 
 type sleepDurationProvider =
