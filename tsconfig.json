@@ -9,6 +9,6 @@
 		"noUnusedLocals": true,
 		"strictNullChecks": false
 	},
-	"exclude": ["node_modules", "dist", "./src/__tests__"],
+	"exclude": ["node_modules", "dist", "tests"],
 	"include": ["./src/**/*.ts"]
 }

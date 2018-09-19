@@ -18,7 +18,7 @@
 	],
 	"scripts": {
 		"build": "rimraf ./dist && tsc",
-		"test": "mocha --require ts-node/register \"src/**/__tests__/*.ts\"",
+		"test": "yarn build && mocha \"./tests/*.js\"",
 		"prettier": "prettier --write \"./**/*.ts\"",
 		"prettier-check": "prettier --list-different \"./**/*.ts\""
 	},
