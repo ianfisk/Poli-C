@@ -22,7 +22,7 @@ export class CancellationTokenSource {
 	}
 
 	constructor() {
-		const isCanceled = this.isCanceled;
+		const isCanceled = () => this._isCanceled;
 		this._token = {
 			get isCancellationRequested() {
 				return isCanceled();
@@ -64,7 +64,7 @@ export class CancellationTokenSource {
 	}
 
 	get isCancellationRequested() {
-		return this.isCanceled();
+		return this._isCanceled;
 	}
 
 	cancel() {
@@ -90,8 +90,4 @@ export class CancellationTokenSource {
 			throw new Error('Using the CancellationTokenSource after disposal is prohibited.');
 		}
 	}
-
-	private isCanceled = () => {
-		return this._isCanceled;
-	};
 }
