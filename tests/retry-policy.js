@@ -1,39 +1,28 @@
 const expect = require('expect');
 const { RetryPolicy, CancellationTokenSource } = require('../dist/index');
-
-function getRandomNonNegativeNumber() {
-	return Math.floor(Math.random() * 20) + 1;
-}
-
-function asyncDelay(wait = 20) {
-	return new Promise(resolve => setTimeout(resolve, wait));
-}
-
-function asyncDelayException(wait = 20) {
-	return new Promise((resolve, reject) => setTimeout(reject, wait));
-}
+const { getRandomPositiveNumber, asyncDelay, asyncDelayException } = require('./utility');
 
 describe('RetryPolicy', () => {
 	describe('waitAndRetry', () => {
 		it('handles a sleepDurationProvider that is a number', async () => {
 			const retryPolicy = RetryPolicy.waitAndRetry({
-				retryCount: getRandomNonNegativeNumber(),
-				sleepDurationProvider: getRandomNonNegativeNumber(),
+				retryCount: getRandomPositiveNumber(),
+				sleepDurationProvider: getRandomPositiveNumber(),
 			});
 			expect(retryPolicy).toBeInstanceOf(RetryPolicy);
 		});
 
 		it('handles a sleepDurationProvider that is a function', async () => {
 			const retryPolicy = RetryPolicy.waitAndRetry({
-				retryCount: getRandomNonNegativeNumber(),
-				sleepDurationProvider: () => getRandomNonNegativeNumber(),
+				retryCount: getRandomPositiveNumber(),
+				sleepDurationProvider: () => getRandomPositiveNumber(),
 			});
 			expect(retryPolicy).toBeInstanceOf(RetryPolicy);
 		});
 
 		it('allows an undefined sleepDurationProvider', () => {
 			const retryPolicy = RetryPolicy.waitAndRetry({
-				retryCount: getRandomNonNegativeNumber(),
+				retryCount: getRandomPositiveNumber(),
 			});
 			expect(retryPolicy).toBeInstanceOf(RetryPolicy);
 		});
@@ -42,7 +31,7 @@ describe('RetryPolicy', () => {
 			expect(() => {
 				RetryPolicy.waitAndRetry({
 					retryCount: 0,
-					sleepDurationProvider: getRandomNonNegativeNumber(),
+					sleepDurationProvider: getRandomPositiveNumber(),
 				});
 			}).toThrow();
 		});
@@ -57,7 +46,7 @@ describe('RetryPolicy', () => {
 			expect(() => {
 				RetryPolicy.waitAndRetry({
 					retryCount: null,
-					sleepDurationProvider: getRandomNonNegativeNumber(),
+					sleepDurationProvider: getRandomPositiveNumber(),
 				});
 			}).toThrow();
 		});
@@ -65,8 +54,8 @@ describe('RetryPolicy', () => {
 		it('throws with a negative retryCount', async () => {
 			expect(() => {
 				RetryPolicy.waitAndRetry({
-					retryCount: -getRandomNonNegativeNumber(),
-					sleepDurationProvider: getRandomNonNegativeNumber(),
+					retryCount: -getRandomPositiveNumber(),
+					sleepDurationProvider: getRandomPositiveNumber(),
 				});
 			}).toThrow();
 		});
@@ -75,14 +64,14 @@ describe('RetryPolicy', () => {
 	describe('waitAndRetryForever', () => {
 		it('handles a sleepDurationProvider that is a number', async () => {
 			const retryPolicy = RetryPolicy.waitAndRetryForever({
-				sleepDurationProvider: getRandomNonNegativeNumber(),
+				sleepDurationProvider: getRandomPositiveNumber(),
 			});
 			expect(retryPolicy).toBeInstanceOf(RetryPolicy);
 		});
 
 		it('handles a sleepDurationProvider that is a function', async () => {
 			const retryPolicy = RetryPolicy.waitAndRetryForever({
-				sleepDurationProvider: () => getRandomNonNegativeNumber(),
+				sleepDurationProvider: () => getRandomPositiveNumber(),
 			});
 			expect(retryPolicy).toBeInstanceOf(RetryPolicy);
 		});
@@ -90,7 +79,7 @@ describe('RetryPolicy', () => {
 
 	describe('executeAsync', () => {
 		it('retries on exception n times and throws on the last attempt', async () => {
-			const retryCount = getRandomNonNegativeNumber();
+			const retryCount = getRandomPositiveNumber();
 			const retryPolicy = RetryPolicy.waitAndRetry({
 				retryCount,
 				sleepDurationProvider: 5,
@@ -113,8 +102,8 @@ describe('RetryPolicy', () => {
 
 		it(`doesn't retry when there is no exception`, async () => {
 			const retryPolicy = RetryPolicy.waitAndRetry({
-				retryCount: getRandomNonNegativeNumber(),
-				sleepDurationProvider: () => getRandomNonNegativeNumber(),
+				retryCount: getRandomPositiveNumber(),
+				sleepDurationProvider: () => getRandomPositiveNumber(),
 			});
 
 			let executionAttempts = 0;
@@ -126,7 +115,7 @@ describe('RetryPolicy', () => {
 		});
 
 		it('stops retrying if successful', async () => {
-			const retryCount = Math.max(2, getRandomNonNegativeNumber());
+			const retryCount = Math.max(2, getRandomPositiveNumber());
 			const numberOfAttemptsToThrow = Math.floor(retryCount / 2);
 
 			const retryPolicy = RetryPolicy.waitAndRetry({ retryCount });
@@ -145,11 +134,11 @@ describe('RetryPolicy', () => {
 		});
 
 		it('stops retrying forever if successful', async () => {
-			const retryCount = Math.max(2, getRandomNonNegativeNumber());
+			const retryCount = Math.max(2, getRandomPositiveNumber());
 			const numberOfAttemptsToThrow = Math.floor(retryCount / 2);
 
 			const retryPolicy = RetryPolicy.waitAndRetryForever({
-				sleepDurationProvider: getRandomNonNegativeNumber(),
+				sleepDurationProvider: getRandomPositiveNumber(),
 			});
 
 			let throwCount = 0;
@@ -168,7 +157,7 @@ describe('RetryPolicy', () => {
 		it('returns the result of the callback', async () => {
 			const workResult = 'work';
 			const retryPolicy = RetryPolicy.waitAndRetry({
-				retryCount: getRandomNonNegativeNumber(),
+				retryCount: getRandomPositiveNumber(),
 			});
 			const result = await retryPolicy.executeAsync(async () => {
 				await asyncDelay();
@@ -220,7 +209,7 @@ describe('RetryPolicy', () => {
 
 		it('passes the cancellation token to the work callback', async () => {
 			const retryPolicy = RetryPolicy.waitAndRetry({
-				retryCount: getRandomNonNegativeNumber(),
+				retryCount: getRandomPositiveNumber(),
 			});
 			const cts = new CancellationTokenSource();
 
@@ -236,7 +225,7 @@ describe('RetryPolicy', () => {
 
 		it('does not execute the work if the cancellation token is already canceled', async () => {
 			const retryPolicy = RetryPolicy.waitAndRetry({
-				retryCount: getRandomNonNegativeNumber(),
+				retryCount: getRandomPositiveNumber(),
 			});
 			const cts = new CancellationTokenSource();
 			cts.cancel();
