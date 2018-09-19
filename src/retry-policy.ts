@@ -59,7 +59,7 @@ export class RetryPolicy {
 		}
 
 		for (let i = 0; i < this._retryCount - 1; i++) {
-			if (cancellationToken && cancellationToken.isCancellationRequested) {
+			if (isTokenCanceled(cancellationToken)) {
 				return;
 			}
 
@@ -75,7 +75,7 @@ export class RetryPolicy {
 			await sleepAsync(this.getSleepDuration(i + 1), cancellationToken);
 		}
 
-		return await asyncFunc(cancellationToken);
+		return !isTokenCanceled(cancellationToken) ? await asyncFunc(cancellationToken) : undefined;
 	}
 
 	private getSleepDuration(retryAttempt: number): number {
@@ -87,6 +87,10 @@ export class RetryPolicy {
 			? this._sleepDurationProvider({ retryAttempt })
 			: this._sleepDurationProvider;
 	}
+}
+
+function isTokenCanceled(cancellationToken?: CancellationToken) {
+	return cancellationToken && cancellationToken.isCancellationRequested;
 }
 
 function validateRetryCount(retryCount: number) {
