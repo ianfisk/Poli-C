@@ -240,4 +240,47 @@ describe('RetryPolicy', () => {
 			expect(result).toBeUndefined();
 		});
 	});
+
+	describe('untilValidResult', () => {
+		it('retries until a valid result is not obtained', async () => {
+			const retryCount = getRandomPositiveNumber();
+			const retryPolicy = RetryPolicy.waitAndRetry({
+				retryCount,
+				sleepDurationProvider: 10,
+			}).untilValidResult(() => Math.random() > 0.5);
+
+			let count = 0;
+			const returnedCount = await retryPolicy.executeAsync(() => Promise.resolve(++count));
+
+			expect(returnedCount).toBe(count);
+			expect(count <= retryCount).toBe(true);
+		});
+
+		it('retries forever until a valid result is obtained', async () => {
+			const retryCount = getRandomPositiveNumber();
+			const retryPolicy = RetryPolicy.waitAndRetryForever({
+				sleepDurationProvider: 10,
+			}).untilValidResult(c => c > retryCount);
+
+			let count = 0;
+			const returnedCount = await retryPolicy.executeAsync(() => Promise.resolve(++count));
+
+			expect(returnedCount).toBe(count);
+			expect(count).toBe(retryCount + 1);
+		});
+
+		it('retries a set number of times when a valid result is not obtained', async () => {
+			const retryCount = getRandomPositiveNumber();
+			const retryPolicy = RetryPolicy.waitAndRetry({
+				retryCount,
+				sleepDurationProvider: 10,
+			}).untilValidResult(() => false);
+
+			let count = 0;
+			const returnedCount = await retryPolicy.executeAsync(() => Promise.resolve(++count));
+
+			expect(returnedCount).toBe(count);
+			expect(count).toBe(retryCount);
+		});
+	});
 });
