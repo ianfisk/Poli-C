@@ -1,7 +1,8 @@
 {
 	"compilerOptions": {
-		"target": "es6",
+		"target": "es5",
 		"module": "CommonJS",
+		"lib": ["es5", "ES2015.Promise", "dom"],
 		"outDir": "dist",
 		"declaration": true,
 		"strict": true,

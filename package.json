@@ -18,9 +18,10 @@
 	],
 	"scripts": {
 		"build": "rimraf ./dist && tsc",
-		"test": "yarn build && mocha \"./tests/*.js\"",
-		"prettier": "prettier --write \"./**/*.ts\"",
-		"prettier-check": "prettier --list-different \"./**/*.ts\""
+		"test": "mocha \"./tests/*.js\"",
+		"prettier": "prettier --write \"./src/**/*.ts\"",
+		"prettier-check": "prettier --list-different \"./src/**/*.ts\"",
+		"prepublishOnly": "yarn prettier-check && yarn build && yarn test"
 	},
 	"devDependencies": {
 		"expect": "^23.6.0",
