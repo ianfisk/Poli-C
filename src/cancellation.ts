@@ -21,7 +21,7 @@ export class CancellationTokenSource {
 		return linkedTokenSource;
 	}
 
-	constructor() {
+	constructor(millisecondsDelay?: number) {
 		const isCanceled = () => this._isCanceled;
 		this._token = {
 			get isCancellationRequested() {
@@ -50,11 +50,16 @@ export class CancellationTokenSource {
 				};
 			},
 		};
+
+		if (millisecondsDelay != null) {
+			this._cancelTimeout = setTimeout(() => this.cancel(), millisecondsDelay);
+		}
 	}
 
 	private _token: CancellationToken | null;
 	private _registeredCancelActions: (() => void)[] = [];
 	private _linkedTokenUnregisterCallbacks: (() => void)[] = [];
+	private _cancelTimeout?: number;
 	private _isCanceled: boolean = false;
 	private _isDisposed: boolean = false;
 
@@ -75,6 +80,8 @@ export class CancellationTokenSource {
 		this._linkedTokenUnregisterCallbacks.forEach(unregister => unregister());
 		this._registeredCancelActions = [];
 		this._linkedTokenUnregisterCallbacks = [];
+
+		clearTimeout(this._cancelTimeout);
 	}
 
 	dispose() {
@@ -83,6 +90,8 @@ export class CancellationTokenSource {
 		this._linkedTokenUnregisterCallbacks.forEach(unregister => unregister());
 		this._registeredCancelActions = [];
 		this._linkedTokenUnregisterCallbacks = [];
+
+		clearTimeout(this._cancelTimeout);
 	}
 
 	private assertNotDisposed() {

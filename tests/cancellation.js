@@ -1,6 +1,6 @@
 const expect = require('expect');
 const { CancellationTokenSource } = require('../dist/index');
-const { getRandomPositiveNumber, getRandomNonNegativeNumber } = require('./utility');
+const { getRandomPositiveNumber, getRandomNonNegativeNumber, asyncDelay } = require('./utility');
 
 describe('CancellationTokenSource', () => {
 	it('creates a source in the default state', () => {
@@ -168,6 +168,16 @@ describe('CancellationTokenSource', () => {
 
 		expect(cts.isCancellationRequested).toBe(false);
 		expect(wasCalled).toBe(false);
+	});
+
+	it('can be constructed with a delay', async () => {
+		const cancelDelay = getRandomNonNegativeNumber();
+		const cts = new CancellationTokenSource(cancelDelay);
+
+		await asyncDelay(cancelDelay + 1);
+
+		expect(cts.isCancellationRequested).toBe(true);
+		expect(cts.token.isCancellationRequested).toBe(true);
 	});
 
 	describe('createLinkedTokenSource', () => {
