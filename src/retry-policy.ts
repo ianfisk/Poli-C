@@ -58,7 +58,7 @@ export class RetryPolicy {
 			throw new Error('asyncFunction must be provided.');
 		}
 
-		for (let i = 0; i < this._retryCount - 1; i++) {
+		for (let i = 1; i < this._retryCount; i++) {
 			if (isTokenCanceled(cancellationToken)) {
 				return;
 			}
@@ -72,7 +72,7 @@ export class RetryPolicy {
 				// ignore
 			}
 
-			await sleepAsync(this.getSleepDuration(i + 1), cancellationToken);
+			await sleepAsync(this.getSleepDuration(i), cancellationToken);
 		}
 
 		return !isTokenCanceled(cancellationToken) ? await asyncFunc(cancellationToken) : undefined;
