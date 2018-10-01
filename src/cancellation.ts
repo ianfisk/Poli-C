@@ -52,7 +52,7 @@ export class CancellationTokenSource {
 		};
 	}
 
-	private _token: CancellationToken;
+	private _token: CancellationToken | null;
 	private _registeredCancelActions: (() => void)[] = [];
 	private _linkedTokenUnregisterCallbacks: (() => void)[] = [];
 	private _isCanceled: boolean = false;

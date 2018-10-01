@@ -8,7 +8,7 @@
 		"strict": true,
 		"esModuleInterop": true,
 		"noUnusedLocals": true,
-		"strictNullChecks": false
+		"strictNullChecks": true
 	},
 	"exclude": ["node_modules", "dist", "tests"],
 	"include": ["./src/**/*.ts"]

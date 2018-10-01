@@ -4,7 +4,7 @@ export function sleepAsync(duration: number, cancellationToken?: CancellationTok
 	return duration
 		? new Promise(resolve => {
 				// declare unregister here so it is defined in the callback if the register callback is invoked synchronously (the token is already canceled)
-				let unregister: () => void;
+				let unregister: (() => void) | null;
 				const unregisterAndResolve = () => {
 					clearTimeout(timeoutId);
 					if (unregister) {

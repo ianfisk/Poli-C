@@ -37,9 +37,9 @@ export class RetryPolicy {
 		return policy;
 	}
 
-	private _retryCount: number;
-	private _sleepDurationProvider: sleepDurationProvider;
-	private _isValidResult: (result: any) => boolean;
+	private _retryCount!: number;
+	private _sleepDurationProvider?: sleepDurationProvider;
+	private _isValidResult?: (result: any) => boolean;
 
 	untilValidResult(resultValidator: (result: any) => boolean) {
 		if (typeof resultValidator !== 'function') {
@@ -51,7 +51,7 @@ export class RetryPolicy {
 	}
 
 	async executeAsync(
-		asyncFunc: (ct: CancellationToken) => Promise<any>,
+		asyncFunc: (ct?: CancellationToken) => Promise<any>,
 		cancellationToken?: CancellationToken
 	): Promise<any> {
 		if (!asyncFunc || typeof asyncFunc !== 'function') {
