@@ -1,45 +1,13 @@
+import { AsyncExecutor, sleepDurationProvider } from './interfaces';
 import { CancellationToken } from './cancellation';
 import { sleepAsync } from './utils';
 
-type sleepDurationProvider =
-	| number
-	| ((sleepDurationProviderArgs: { retryAttempt: number }) => number);
-
-export class RetryPolicy {
-	static waitAndRetry({
-		retryCount,
-		sleepDurationProvider,
-	}: {
-		retryCount: number;
-		sleepDurationProvider?: sleepDurationProvider;
-	}): RetryPolicy {
-		validateRetryCount(retryCount);
-		validateSleepDurationProvider(sleepDurationProvider);
-
-		const policy = new RetryPolicy();
-		policy._retryCount = retryCount;
-		policy._sleepDurationProvider = sleepDurationProvider;
-
-		return policy;
-	}
-
-	static waitAndRetryForever({
-		sleepDurationProvider,
-	}: {
-		sleepDurationProvider?: sleepDurationProvider;
-	}): RetryPolicy {
-		validateSleepDurationProvider(sleepDurationProvider);
-
-		const policy = new RetryPolicy();
-		policy._retryCount = Number.MAX_VALUE;
-		policy._sleepDurationProvider = sleepDurationProvider;
-
-		return policy;
-	}
-
-	private _retryCount!: number;
-	private _sleepDurationProvider?: sleepDurationProvider;
-	private _isValidResult?: (result: any) => boolean;
+export class RetryPolicy implements AsyncExecutor {
+	// private instance variables (these should be "internal" access if TS had it)
+	_retryCount!: number;
+	_sleepDurationProvider?: sleepDurationProvider;
+	_isValidResult?: (result: any) => boolean;
+	_shouldHandleError?: (error: Error) => boolean;
 
 	untilValidResult(resultValidator: (result: any) => boolean) {
 		if (typeof resultValidator !== 'function') {
@@ -69,7 +37,9 @@ export class RetryPolicy {
 					return result;
 				}
 			} catch (e) {
-				// ignore
+				if (this._shouldHandleError && !this._shouldHandleError(e)) {
+					throw e;
+				}
 			}
 
 			await sleepAsync(this.getSleepDuration(i), cancellationToken);
@@ -91,20 +61,4 @@ export class RetryPolicy {
 
 function isTokenCanceled(cancellationToken?: CancellationToken) {
 	return cancellationToken && cancellationToken.isCancellationRequested;
-}
-
-function validateRetryCount(retryCount: number) {
-	if (typeof retryCount !== 'number' || retryCount <= 0) {
-		throw new Error('Retry count must be set and greater than 0.');
-	}
-}
-
-function validateSleepDurationProvider(sleepDurationProvider?: sleepDurationProvider) {
-	if (
-		sleepDurationProvider != null &&
-		typeof sleepDurationProvider !== 'function' &&
-		typeof sleepDurationProvider !== 'number'
-	) {
-		throw new Error('If provided, the sleep duration provider must be a function or number.');
-	}
 }
