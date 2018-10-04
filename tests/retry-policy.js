@@ -3,7 +3,7 @@ const { default: Policy, CancellationTokenSource } = require('../dist/index');
 const { RetryPolicy } = require('../dist/retry-policy');
 const { getRandomPositiveNumber, asyncDelay, asyncDelayException } = require('./utility');
 
-describe('Policy', () => {
+describe('RetryPolicy', () => {
 	describe('waitAndRetry', () => {
 		it('handles a sleepDurationProvider that is a number', async () => {
 			const retryPolicy = Policy.waitAndRetry({
@@ -75,6 +75,72 @@ describe('Policy', () => {
 				sleepDurationProvider: () => getRandomPositiveNumber(),
 			});
 			expect(retryPolicy).toBeInstanceOf(RetryPolicy);
+		});
+	});
+
+	describe('handleError', () => {
+		it('configures the retry policy to only handles certain errors (waitAndRetry)', async () => {
+			const retryCount = getRandomPositiveNumber();
+			const maxErrorsToHandle = Math.ceil(retryCount / 2);
+			const retryPolicy = Policy.handleError(error => error < maxErrorsToHandle).waitAndRetry({
+				retryCount,
+				sleepDurationProvider: 10,
+			});
+
+			let count = 0;
+			let returnedCount;
+			try {
+				await retryPolicy.executeAsync(() => Promise.reject(++count));
+			} catch (rejectedCount) {
+				returnedCount = rejectedCount;
+			}
+
+			expect(returnedCount).toBe(count);
+			expect(count).toBe(maxErrorsToHandle);
+		});
+
+		it('configures the retry policy to only handles certain errors (waitAndRetryForever)', async () => {
+			const maxErrorsToHandle = getRandomPositiveNumber();
+			const retryPolicy = Policy.handleError(
+				error => error < maxErrorsToHandle
+			).waitAndRetryForever({
+				sleepDurationProvider: 10,
+			});
+
+			let count = 0;
+			let returnedCount;
+			try {
+				await retryPolicy.executeAsync(() => Promise.reject(++count));
+			} catch (rejectedCount) {
+				returnedCount = rejectedCount;
+			}
+
+			expect(returnedCount).toBe(count);
+			expect(count).toBe(maxErrorsToHandle);
+		});
+
+		it('can be used with untilValidResult', async () => {
+			const maxErrorsToHandle = getRandomPositiveNumber();
+			const retryPolicy = Policy.handleError(error => error < maxErrorsToHandle)
+				.waitAndRetryForever({
+					sleepDurationProvider: 10,
+				})
+				.untilValidResult(count => count >= maxErrorsToHandle);
+
+			let count = 0;
+			let returnedCount;
+			let didCatchException = false;
+			try {
+				returnedCount = await retryPolicy.executeAsync(
+					() => (++count < maxErrorsToHandle ? Promise.reject(count) : Promise.resolve(count))
+				);
+			} catch (e) {
+				didCatchException = true;
+			}
+
+			expect(didCatchException).toBe(false);
+			expect(returnedCount).toBe(count);
+			expect(count).toBe(maxErrorsToHandle);
 		});
 	});
 
