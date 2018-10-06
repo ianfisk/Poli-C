@@ -4,7 +4,6 @@
 		"module": "CommonJS",
 		"lib": ["es5", "ES2015.Promise", "dom"],
 		"outDir": "dist",
-		"declaration": true,
 		"strict": true,
 		"esModuleInterop": true,
 		"noUnusedLocals": true,

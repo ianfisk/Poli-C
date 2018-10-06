@@ -3,9 +3,10 @@
 	"version": "0.0.3",
 	"description": "A fault tolerance utility for JavaScript.",
 	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
+	"types": "typings/index.d.ts",
 	"files": [
-		"dist/"
+		"dist",
+		"typings"
 	],
 	"author": "Ian Fisk <i.fisk32@gmail.com>",
 	"license": "MIT",

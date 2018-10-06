@@ -1,5 +1,5 @@
 const expect = require('expect');
-const { default: Policy, CancellationTokenSource } = require('../dist/index');
+const { Policy, CancellationTokenSource } = require('../dist/index');
 const { RetryPolicy } = require('../dist/retry-policy');
 const { getRandomPositiveNumber, asyncDelay, asyncDelayException } = require('./utility');
 
