@@ -10,6 +10,10 @@
 	],
 	"author": "Ian Fisk <i.fisk32@gmail.com>",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ianfisk/poli-c"
+	},
 	"keywords": [
 		"retry",
 		"policy",
