@@ -1,5 +1,6 @@
 import { sleepDurationProvider } from './interfaces';
 import { RetryPolicy } from './retry-policy';
+import { CircuitBreakerPolicy } from './circuit-breaker-policy';
 
 export class PolicyBuilder {
 	static handleError(errorPredicate: (error: Error) => boolean): PolicyBuilder {
@@ -17,6 +18,16 @@ export class PolicyBuilder {
 		sleepDurationProvider?: sleepDurationProvider;
 	}): RetryPolicy {
 		return new PolicyBuilder().waitAndRetryForever(options);
+	}
+
+	static circuitBreaker(options: {
+		samplingDurationMs: number;
+		failureThreshold: number;
+		minimumThroughput: number;
+		breakDurationMs: number;
+		onOpen?: () => void;
+	}) {
+		return new PolicyBuilder().circuitBreaker(options);
 	}
 
 	private _errorPredicate?: (error: Error) => boolean;
@@ -48,6 +59,19 @@ export class PolicyBuilder {
 		return new RetryPolicy({
 			retryCount: Number.MAX_VALUE,
 			sleepDurationProvider,
+			shouldHandleError: this._errorPredicate,
+		});
+	}
+
+	circuitBreaker(options: {
+		samplingDurationMs: number;
+		failureThreshold: number;
+		minimumThroughput: number;
+		breakDurationMs: number;
+		onOpen?: () => void;
+	}): CircuitBreakerPolicy {
+		return new CircuitBreakerPolicy({
+			...options,
 			shouldHandleError: this._errorPredicate,
 		});
 	}

@@ -1,4 +1,4 @@
-import { CancellationToken } from './cancellation';
+import { CancellationToken } from '../cancellation';
 
 export function sleepAsync(duration: number, cancellationToken?: CancellationToken) {
 	return duration

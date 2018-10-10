@@ -1,6 +1,6 @@
 import { AsyncExecutor, sleepDurationProvider } from './interfaces';
 import { CancellationToken } from './cancellation';
-import { sleepAsync } from './utils';
+import { sleepAsync } from './utils/sleep-async';
 
 export class RetryPolicy implements AsyncExecutor {
 	constructor({
