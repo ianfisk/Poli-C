@@ -3,11 +3,24 @@ import { CancellationToken } from './cancellation';
 import { sleepAsync } from './utils';
 
 export class RetryPolicy implements AsyncExecutor {
-	// private instance variables (these should be "internal" access if TS had it)
-	_retryCount!: number;
-	_sleepDurationProvider?: sleepDurationProvider;
-	_isValidResult?: (result: any) => boolean;
-	_shouldHandleError?: (error: Error) => boolean;
+	constructor({
+		retryCount,
+		sleepDurationProvider,
+		shouldHandleError,
+	}: {
+		retryCount: number;
+		sleepDurationProvider?: sleepDurationProvider;
+		shouldHandleError?: (error: Error) => boolean;
+	}) {
+		this._retryCount = retryCount;
+		this._sleepDurationProvider = sleepDurationProvider;
+		this._shouldHandleError = shouldHandleError || (() => true);
+	}
+
+	private _isValidResult: (result: any) => boolean = () => true;
+	private _retryCount: number;
+	private _sleepDurationProvider?: sleepDurationProvider;
+	private _shouldHandleError: (error: Error) => boolean;
 
 	untilValidResult(resultValidator: (result: any) => boolean) {
 		if (typeof resultValidator !== 'function') {
@@ -33,11 +46,11 @@ export class RetryPolicy implements AsyncExecutor {
 
 			try {
 				const result = await asyncFunc(cancellationToken);
-				if (!this._isValidResult || this._isValidResult(result)) {
+				if (this._isValidResult(result)) {
 					return result;
 				}
 			} catch (e) {
-				if (this._shouldHandleError && !this._shouldHandleError(e)) {
+				if (!this._shouldHandleError(e)) {
 					throw e;
 				}
 			}

@@ -31,12 +31,11 @@ export class PolicyBuilder {
 		validateRetryCount(retryCount);
 		validateSleepDurationProvider(sleepDurationProvider);
 
-		const policy = new RetryPolicy();
-		policy._retryCount = retryCount;
-		policy._sleepDurationProvider = sleepDurationProvider;
-		policy._shouldHandleError = this._errorPredicate;
-
-		return policy;
+		return new RetryPolicy({
+			retryCount,
+			sleepDurationProvider,
+			shouldHandleError: this._errorPredicate,
+		});
 	}
 
 	waitAndRetryForever({
@@ -46,12 +45,11 @@ export class PolicyBuilder {
 	} = {}): RetryPolicy {
 		validateSleepDurationProvider(sleepDurationProvider);
 
-		const policy = new RetryPolicy();
-		policy._retryCount = Number.MAX_VALUE;
-		policy._sleepDurationProvider = sleepDurationProvider;
-		policy._shouldHandleError = this._errorPredicate;
-
-		return policy;
+		return new RetryPolicy({
+			retryCount: Number.MAX_VALUE,
+			sleepDurationProvider,
+			shouldHandleError: this._errorPredicate,
+		});
 	}
 
 	private handleError(errorPredicate: (error: Error) => boolean): PolicyBuilder {
