@@ -3,6 +3,7 @@ export interface CancellationToken {
 	throwIfCancellationRequested: () => void;
 	register(callback: () => void): () => void;
 }
+
 export declare class CancellationTokenSource {
 	static createLinkedTokenSource(...tokens: CancellationToken[]): CancellationTokenSource;
 	constructor(millisecondsDelay?: number);

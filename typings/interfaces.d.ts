@@ -1,4 +1,5 @@
 import { CancellationToken } from './cancellation';
+
 export interface AsyncExecutor {
 	executeAsync: (
 		asyncFunc: (ct?: CancellationToken) => Promise<any>,
