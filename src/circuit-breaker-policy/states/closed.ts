@@ -1,3 +1,4 @@
+import { CancellationToken } from '../../cancellation';
 import { SlidingTimeWindow } from '../../utils/sliding-time-window';
 import { CircuitBreakerPolicy } from '..';
 import { CircuitBreakerState } from '.';
@@ -29,9 +30,12 @@ export class ClosedCircuitBreakerState implements CircuitBreakerState {
 		this._hasOpenedCircuit = false;
 	}
 
-	async executeAsync(asyncFunc: () => Promise<any>): Promise<any> {
+	async executeAsync(
+		asyncFunc: (ct?: CancellationToken) => Promise<any>,
+		cancellationToken?: CancellationToken
+	): Promise<any> {
 		try {
-			const result = await asyncFunc();
+			const result = await asyncFunc(cancellationToken);
 			this._invocationRecords.addItem({ didFail: false });
 
 			return result;

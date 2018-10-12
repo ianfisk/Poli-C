@@ -1,6 +1,7 @@
 import { AsyncExecutor, sleepDurationProvider } from './interfaces';
 import { CancellationToken } from './cancellation';
 import { sleepAsync } from './utils/sleep-async';
+import { isTokenCanceled } from './utils/cancellation-utils';
 
 export class RetryPolicy implements AsyncExecutor {
 	constructor({
@@ -70,8 +71,4 @@ export class RetryPolicy implements AsyncExecutor {
 			? this._sleepDurationProvider({ retryAttempt })
 			: this._sleepDurationProvider;
 	}
-}
-
-function isTokenCanceled(cancellationToken?: CancellationToken) {
-	return cancellationToken && cancellationToken.isCancellationRequested;
 }

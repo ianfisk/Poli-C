@@ -1,4 +1,6 @@
 import { AsyncExecutor } from '../interfaces';
+import { CancellationToken } from '../cancellation';
+import { isTokenCanceled } from '../utils/cancellation-utils';
 import {
 	CircuitBreakerState,
 	OpenCircuitBreakerState,
@@ -57,12 +59,19 @@ export class CircuitBreakerPolicy implements AsyncExecutor {
 
 	private _currentState: CircuitBreakerState;
 
-	executeAsync(asyncFunc: () => Promise<any>): Promise<any> {
+	executeAsync(
+		asyncFunc: (ct?: CancellationToken) => Promise<any>,
+		cancellationToken?: CancellationToken
+	): Promise<any> {
 		if (!asyncFunc || typeof asyncFunc !== 'function') {
 			throw new Error('asyncFunction must be provided.');
 		}
 
-		return this._currentState.executeAsync(asyncFunc);
+		if (isTokenCanceled(cancellationToken)) {
+			return Promise.resolve();
+		}
+
+		return this._currentState.executeAsync(asyncFunc, cancellationToken);
 	}
 
 	private transitionToState(newState: CircuitBreakerState): boolean {

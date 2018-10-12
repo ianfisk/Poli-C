@@ -1,8 +1,8 @@
+import { AsyncExecutor } from '../../interfaces';
 export { OpenCircuitBreakerState } from './open';
 export { ClosedCircuitBreakerState } from './closed';
 export { HalfOpenCircuitBreakerState } from './half-open';
 
-export interface CircuitBreakerState {
+export interface CircuitBreakerState extends AsyncExecutor {
 	enter(): void;
-	executeAsync(asyncFunc: () => Promise<any>): Promise<any>;
 }

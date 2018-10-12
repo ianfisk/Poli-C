@@ -1,3 +1,4 @@
+import { CancellationToken } from '../../cancellation';
 import { CircuitBreakerPolicy } from '..';
 import { CircuitBreakerState } from '.';
 
@@ -13,7 +14,10 @@ export class HalfOpenCircuitBreakerState implements CircuitBreakerState {
 		this._isInvoking = false;
 	}
 
-	async executeAsync(asyncFunc: () => Promise<any>): Promise<any> {
+	async executeAsync(
+		asyncFunc: (ct?: CancellationToken) => Promise<any>,
+		cancellationToken?: CancellationToken
+	): Promise<any> {
 		if (this._isInvoking) {
 			throw new Error('circuitBreakerOpen');
 		}
@@ -21,7 +25,7 @@ export class HalfOpenCircuitBreakerState implements CircuitBreakerState {
 		this._isInvoking = true;
 
 		try {
-			const result = await asyncFunc();
+			const result = await asyncFunc(cancellationToken);
 			this._circuitBreaker.closeCircuit();
 
 			return result;
