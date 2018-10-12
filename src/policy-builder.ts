@@ -1,6 +1,15 @@
 import { sleepDurationProvider } from './interfaces';
 import { RetryPolicy } from './retry-policy';
 import { CircuitBreakerPolicy } from './circuit-breaker-policy';
+import {
+	assertIsFunction,
+	assertIsValidRetryCount,
+	assertIsValidSleepDurationProvider,
+	assertIsValidSamplingDurationMs,
+	assertIsValidFailureThreshold,
+	assertIsValidMinimumThroughput,
+	assertIsValidBreakDurationMs,
+} from './utils/validators';
 
 export class PolicyBuilder {
 	static handleError(errorPredicate: (error: Error) => boolean): PolicyBuilder {
@@ -39,8 +48,8 @@ export class PolicyBuilder {
 		retryCount: number;
 		sleepDurationProvider?: sleepDurationProvider;
 	}): RetryPolicy {
-		validateRetryCount(retryCount);
-		validateSleepDurationProvider(sleepDurationProvider);
+		assertIsValidRetryCount(retryCount);
+		assertIsValidSleepDurationProvider(sleepDurationProvider);
 
 		return new RetryPolicy({
 			retryCount,
@@ -54,7 +63,7 @@ export class PolicyBuilder {
 	}: {
 		sleepDurationProvider?: sleepDurationProvider;
 	} = {}): RetryPolicy {
-		validateSleepDurationProvider(sleepDurationProvider);
+		assertIsValidSleepDurationProvider(sleepDurationProvider);
 
 		return new RetryPolicy({
 			retryCount: Number.MAX_VALUE,
@@ -70,6 +79,12 @@ export class PolicyBuilder {
 		breakDurationMs: number;
 		onOpen?: () => void;
 	}): CircuitBreakerPolicy {
+		assertIsValidSamplingDurationMs(options.samplingDurationMs);
+		assertIsValidFailureThreshold(options.failureThreshold);
+		assertIsValidMinimumThroughput(options.minimumThroughput);
+		assertIsValidBreakDurationMs(options.breakDurationMs);
+		if (options.onOpen) assertIsFunction(options.onOpen, 'onOpen must be a function.');
+
 		return new CircuitBreakerPolicy({
 			...options,
 			shouldHandleError: this._errorPredicate,
@@ -77,30 +92,8 @@ export class PolicyBuilder {
 	}
 
 	private handleError(errorPredicate: (error: Error) => boolean): PolicyBuilder {
-		validateErrorPredicate(errorPredicate);
+		assertIsFunction(errorPredicate, 'Error predicate must be a function.');
 		this._errorPredicate = errorPredicate;
 		return this;
-	}
-}
-
-function validateErrorPredicate(errorPredicate: any) {
-	if (typeof errorPredicate !== 'function') {
-		throw new Error('Error predicate must be a function.');
-	}
-}
-
-function validateRetryCount(retryCount: number) {
-	if (typeof retryCount !== 'number' || retryCount <= 0) {
-		throw new Error('Retry count must be set and greater than 0.');
-	}
-}
-
-function validateSleepDurationProvider(sleepDurationProvider?: sleepDurationProvider) {
-	if (
-		sleepDurationProvider != null &&
-		typeof sleepDurationProvider !== 'function' &&
-		typeof sleepDurationProvider !== 'number'
-	) {
-		throw new Error('If provided, the sleep duration provider must be a function or number.');
 	}
 }
