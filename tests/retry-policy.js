@@ -5,6 +5,10 @@ const { getRandomPositiveNumber, asyncDelay, asyncDelayException } = require('./
 
 describe('RetryPolicy', () => {
 	describe('waitAndRetry', () => {
+		it('throws when no options are specified', () => {
+			expect(() => Policy.waitAndRetry()).toThrow();
+		});
+
 		it('handles a sleepDurationProvider that is a number', async () => {
 			const retryPolicy = Policy.waitAndRetry({
 				retryCount: getRandomPositiveNumber(),
@@ -305,6 +309,22 @@ describe('RetryPolicy', () => {
 
 			expect(didWork).toBe(false);
 			expect(result).toBeUndefined();
+		});
+
+		it('throws an error when the argument is not a function', async () => {
+			const retryPolicy = Policy.waitAndRetryForever();
+
+			const inputs = [2, '', true, Promise.resolve()];
+			for (const input of inputs) {
+				let didThrow = false;
+				try {
+					await retryPolicy.executeAsync(input);
+				} catch (e) {
+					didThrow = true;
+				}
+
+				expect(didThrow).toBe(true);
+			}
 		});
 	});
 

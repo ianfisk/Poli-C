@@ -41,19 +41,20 @@ export class PolicyBuilder {
 
 	private _errorPredicate?: (error: Error) => boolean;
 
-	waitAndRetry({
-		retryCount,
-		sleepDurationProvider,
-	}: {
+	waitAndRetry(options: {
 		retryCount: number;
 		sleepDurationProvider?: sleepDurationProvider;
 	}): RetryPolicy {
-		assertIsValidRetryCount(retryCount);
-		assertIsValidSleepDurationProvider(sleepDurationProvider);
+		if (!options) {
+			throw new Error('Retry policy options must be provided.');
+		}
+
+		assertIsValidRetryCount(options.retryCount);
+		assertIsValidSleepDurationProvider(options.sleepDurationProvider);
 
 		return new RetryPolicy({
-			retryCount,
-			sleepDurationProvider,
+			retryCount: options.retryCount,
+			sleepDurationProvider: options.sleepDurationProvider,
 			shouldHandleError: this._errorPredicate,
 		});
 	}
@@ -79,6 +80,10 @@ export class PolicyBuilder {
 		breakDurationMs: number;
 		onOpen?: () => void;
 	}): CircuitBreakerPolicy {
+		if (!options) {
+			throw new Error('Circuit breaker options must be provided.');
+		}
+
 		assertIsValidSamplingDurationMs(options.samplingDurationMs);
 		assertIsValidFailureThreshold(options.failureThreshold);
 		assertIsValidMinimumThroughput(options.minimumThroughput);
