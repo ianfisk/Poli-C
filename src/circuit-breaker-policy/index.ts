@@ -15,6 +15,7 @@ export class CircuitBreakerPolicy implements AsyncExecutor {
 		minimumThroughput,
 		breakDurationMs,
 		onOpen,
+		onClose,
 		shouldHandleError,
 	}: {
 		samplingDurationMs: number;
@@ -22,6 +23,7 @@ export class CircuitBreakerPolicy implements AsyncExecutor {
 		minimumThroughput: number;
 		breakDurationMs: number;
 		onOpen?: () => void;
+		onClose?: () => void;
 		shouldHandleError?: (error: Error) => boolean;
 	}) {
 		this.shouldHandleError = shouldHandleError || (() => true);
@@ -48,7 +50,10 @@ export class CircuitBreakerPolicy implements AsyncExecutor {
 		};
 
 		this.closeCircuit = () => {
-			this.transitionToState(closedState);
+			const didTransition = this.transitionToState(closedState);
+			if (didTransition && onClose) {
+				onClose();
+			}
 		};
 	}
 

@@ -35,6 +35,7 @@ export class PolicyBuilder {
 		minimumThroughput: number;
 		breakDurationMs: number;
 		onOpen?: () => void;
+		onClose?: () => void;
 	}) {
 		return new PolicyBuilder().circuitBreaker(options);
 	}
@@ -79,6 +80,7 @@ export class PolicyBuilder {
 		minimumThroughput: number;
 		breakDurationMs: number;
 		onOpen?: () => void;
+		onClose?: () => void;
 	}): CircuitBreakerPolicy {
 		if (!options) {
 			throw new Error('Circuit breaker options must be provided.');
@@ -89,6 +91,7 @@ export class PolicyBuilder {
 		assertIsValidMinimumThroughput(options.minimumThroughput);
 		assertIsValidBreakDurationMs(options.breakDurationMs);
 		if (options.onOpen) assertIsFunction(options.onOpen, 'onOpen must be a function.');
+		if (options.onClose) assertIsFunction(options.onClose, 'onClose must be a function.');
 
 		return new CircuitBreakerPolicy({
 			...options,
