@@ -46,14 +46,14 @@ export class ClosedCircuitBreakerState implements CircuitBreakerState {
 				const invocationAttempts = this._invocationRecords.itemCount;
 
 				// avoid recalculating the failure rate if the circuit has already been opened
-				if (!this._hasOpenedCircuit && invocationAttempts > this._minimumThroughput) {
+				if (!this._hasOpenedCircuit && invocationAttempts >= this._minimumThroughput) {
 					const failedCount = this._invocationRecords.items.reduce(
 						(countFailed, record) => (record.didFail ? countFailed + 1 : countFailed),
 						0
 					);
 
 					const failureRate = failedCount / invocationAttempts;
-					if (failureRate > this._failureThreshold) {
+					if (failureRate >= this._failureThreshold) {
 						this._hasOpenedCircuit = true;
 						this._circuitBreaker.openCircuit();
 					}
