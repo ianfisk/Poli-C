@@ -35,6 +35,9 @@ export class HalfOpenCircuitBreakerState implements CircuitBreakerState {
 			}
 
 			throw error;
+		} finally {
+			// reset state in case an error isn't handled by the policy and we need to try to close the circuit again
+			this._isInvoking = false;
 		}
 	}
 }
