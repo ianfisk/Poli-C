@@ -4,6 +4,11 @@
 
 Poli-C (pronounced "policy") is a fault tolerance utility for JavaScript. Inspired by [Polly for .NET](https://github.com/App-vNext/Polly), this library's aim is to help applications handle transient failures in asynchronous actions.
 
+## Supported Policies
+
+ - `RetryPolicy` - Sometimes you just need to try again.
+ - `CircuitBreakerPolicy` - Don't kick services while they are down.
+
 ## RetryPolicy Examples
 
 ### Basic
@@ -11,11 +16,12 @@ Poli-C (pronounced "policy") is a fault tolerance utility for JavaScript. Inspir
 Retry forever
 
 ```js
-import { RetryPolicy } from 'poli-c';
+import Policy from 'poli-c'; // TypeScript
+import { Policy } from 'poli-c'; // ES6
 
 ...
 
-const policy = RetryPolicy.waitAndRetryForever({ sleepDurationProvider: 1000 });
+const policy = Policy.waitAndRetryForever({ sleepDurationProvider: 1000 });
 
 async function fetchThings() {
 	const response = await fetch('https://servicethatmightfail.com/v1/things');
@@ -31,11 +37,34 @@ const things = await policy.executeAsync(fetchThings);
 Or not
 
 ```js
-const policy = RetryPolicy.waitAndRetry({ retryCount: 3, sleepDurationProvider: 1000 });
+const policy = Policy.waitAndRetry({ retryCount: 3, sleepDurationProvider: 1000 });
 
 ...
 const things = await policy.executeAsync(fetchThings)
 ...
+```
+
+Additionally, control when the policy retries on error
+
+```js
+const policy = Policy
+	.handleError(error => error instanceof FetchError)
+	.waitAndRetryForever({ sleepDurationProvider: 1000 });
+
+async function fetchThings() {
+	const response = await fetch('https://servicethatmightfail.com/v1/things');
+	if (response.status !== 404 && !response.ok) {
+		// if the request fails the policy will execute the action again
+		throw new FetchError(response);
+	}
+
+	// but if parsing the JSON fails the action won't be retried
+	const things = await response.json();
+	return things;
+}
+
+...
+const things = await policy.executeAsync(fetchThings);
 ```
 
 ### With cancellation
@@ -43,11 +72,12 @@ const things = await policy.executeAsync(fetchThings)
 The asynchronous function will be passed a cancellation token if one is provided to `executeAsync`. This allows for a cooperative cancellation approach (borrowed from the .NET framework). If canceled, `executeAsync` will currently return `undefined`.
 
 ```js
-import { RetryPolicy, CancellationTokenSource } from 'poli-c';
+import Policy, { CancellationTokenSource } from 'poli-c'; // TypeScript
+import { Policy, CancellationTokenSource } from 'poli-c'; // ES6
 
 ...
 
-const policy = RetryPolicy.waitAndRetryForever({ sleepDurationProvider: 1000 });
+const policy = Policy.waitAndRetryForever({ sleepDurationProvider: 1000 });
 
 async function fetchThings(cancellationToken) {
 	const response = await cancelableFetch('https://servicethatmightfail.com/v1/things', cancellationToken);
@@ -56,6 +86,7 @@ async function fetchThings(cancellationToken) {
 }
 
 ...
+
 const cts = new CancellationTokenSource();
 const promise = policy.executeAsync(fetchThings, cts.token);
 
@@ -77,11 +108,11 @@ if (!things) {
 ### Until a valid result is obtained
 
 ```js
-import { RetryPolicy } from 'poli-c';
+import { Policy } from 'poli-c';
 
 ...
 
-const policy = RetryPolicy
+const policy = Policy
 	.waitAndRetryForever({ sleepDurationProvider: 1000 })
 	.untilValidResult(job => job.isComplete);
 
@@ -101,11 +132,11 @@ async function waitForJobCompletion(newJob, cancellationToken) {
 The library includes two backoff algorithms (full and equal jitter as described [here](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/)) that are available for use. 
 
 ```js
-import { RetryPolicy, backoffs } from 'poli-c';
+import { Policy, backoffs } from 'poli-c';
 
 ...
 
-const policy = RetryPolicy.waitAndRetry({ retryCount: 3, sleepDurationProvider: backoffs.fullJitter });
+const policy = Policy.waitAndRetry({ retryCount: 3, sleepDurationProvider: backoffs.fullJitter });
 
 async function fetchThings() {
 	const response = await fetch('https://servicethatmightfail.com/v1/things');
@@ -121,6 +152,44 @@ const things = await policy.executeAsync(fetchThings);
 Additionally, a custom backoff algorithm can be used:
 
 ```js
-const policy = RetryPolicy.waitAndRetry({ retryCount: 3, sleepDurationProvider: ({ retryAttempt }) => 1000 * retryAttempt });
+const policy = Policy.waitAndRetry({ retryCount: 3, sleepDurationProvider: ({ retryAttempt }) => 1000 * retryAttempt });
 ```
 
+## CircuitBreakerPolicy Examples
+
+### Basic
+
+```js
+import Policy from 'poli-c'; // TypeScript
+import { Policy } from 'poli-c'; // ES6
+
+const policy = Policy
+	.handleError(error => error instanceof FetchError)
+	.circuitBreaker({
+		samplingDurationMs: 5000,
+		failureThreshold: 0.75,
+		minimumThroughput: 4,
+		breakDurationMs: 5000,
+	});
+
+async function fetchThings() {
+	const response = await fetch('https://servicethatmightfail.com/v1/things');
+	if (response.status !== 404 && !response.ok) {
+		throw new FetchError(response);
+	}
+
+	const things = await response.json();
+	return things;
+}
+
+...
+
+try {
+	const things = await policy.executeAsync(fetchThings);
+	return things;
+} catch (e) {
+	// this error may have been thrown immediately by circuit breaker if the
+	// failure threshold has been met in the sampling period
+	handleError(e);
+}
+```
