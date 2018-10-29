@@ -9,6 +9,29 @@ Poli-C (pronounced "policy") is a fault tolerance utility for JavaScript. Inspir
  - `RetryPolicy` - Sometimes you just need to try again.
  - `CircuitBreakerPolicy` - Don't kick services while they are down.
 
+## Installation
+
+Using yarn:
+
+```
+yarn add poli-c
+```
+
+Or npm:
+
+```
+npm install --save poli-c
+```
+
+Then if using TypeScript or a module bundler such as [webpack](https://webpack.js.org/):
+```js
+import Policy from 'poli-c'; // TypeScript
+import { Policy } from 'poli-c'; // ES6
+
+// or if not using ES6 modules
+const { Policy } = require('poli-c');
+```
+
 ## RetryPolicy Examples
 
 ### Basic
@@ -16,8 +39,7 @@ Poli-C (pronounced "policy") is a fault tolerance utility for JavaScript. Inspir
 Retry forever
 
 ```js
-import Policy from 'poli-c'; // TypeScript
-import { Policy } from 'poli-c'; // ES6
+import { Policy } from 'poli-c';
 
 ...
 
@@ -72,8 +94,7 @@ const things = await policy.executeAsync(fetchThings);
 The asynchronous function will be passed a cancellation token if one is provided to `executeAsync`. This allows for a cooperative cancellation approach (borrowed from the .NET framework). If canceled, `executeAsync` will currently return `undefined`.
 
 ```js
-import Policy, { CancellationTokenSource } from 'poli-c'; // TypeScript
-import { Policy, CancellationTokenSource } from 'poli-c'; // ES6
+import { Policy, CancellationTokenSource } from 'poli-c';
 
 ...
 
@@ -160,7 +181,6 @@ const policy = Policy.waitAndRetry({ retryCount: 3, sleepDurationProvider: ({ re
 ### Basic
 
 ```js
-import Policy from 'poli-c'; // TypeScript
 import { Policy } from 'poli-c'; // ES6
 
 const policy = Policy
