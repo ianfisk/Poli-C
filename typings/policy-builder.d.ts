@@ -20,6 +20,7 @@ export declare class PolicyBuilder {
 		minimumThroughput: number;
 		breakDurationMs: number;
 		onOpen?: () => void;
+		onClose?: () => void;
 	}): CircuitBreakerPolicy;
 
 	waitAndRetry({
@@ -42,5 +43,6 @@ export declare class PolicyBuilder {
 		minimumThroughput: number;
 		breakDurationMs: number;
 		onOpen?: () => void;
+		onClose?: () => void;
 	}): CircuitBreakerPolicy;
 }
