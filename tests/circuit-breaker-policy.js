@@ -34,6 +34,17 @@ describe('CircuitBreakerPolicy', () => {
 			expect(cb).toBeInstanceOf(CircuitBreakerPolicy);
 		});
 
+		it('throws if failure threshold is not defined', () => {
+			expect(() =>
+				Policy.circuitBreaker({
+					samplingDurationMs: 5000,
+					failureThreshold: undefined,
+					minimumThroughput: 2,
+					breakDurationMs: 5000,
+				})
+			).toThrow();
+		});
+
 		it('throws if failure threshold is zero', () => {
 			expect(() =>
 				Policy.circuitBreaker({
@@ -78,12 +89,34 @@ describe('CircuitBreakerPolicy', () => {
 			).toThrow();
 		});
 
+		it('throws if sampling duration is not defined', () => {
+			expect(() =>
+				Policy.circuitBreaker({
+					samplingDurationMs: undefined,
+					failureThreshold: 0.5,
+					minimumThroughput: 2,
+					breakDurationMs: 5000,
+				})
+			).toThrow();
+		});
+
 		it('throws if sampling duration is less than 20 milliseconds', () => {
 			expect(() =>
 				Policy.circuitBreaker({
 					samplingDurationMs: 19,
 					failureThreshold: 0.5,
 					minimumThroughput: 2,
+					breakDurationMs: 5000,
+				})
+			).toThrow();
+		});
+
+		it('throws if minimum throughput is not defined', () => {
+			expect(() =>
+				Policy.circuitBreaker({
+					samplingDurationMs: 5000,
+					failureThreshold: 0.5,
+					minimumThroughput: undefined,
 					breakDurationMs: 5000,
 				})
 			).toThrow();
@@ -96,6 +129,17 @@ describe('CircuitBreakerPolicy', () => {
 					failureThreshold: 0.5,
 					minimumThroughput: 1,
 					breakDurationMs: 5000,
+				})
+			).toThrow();
+		});
+
+		it('throws if break duration is not defined', () => {
+			expect(() =>
+				Policy.circuitBreaker({
+					samplingDurationMs: 5000,
+					failureThreshold: 0.5,
+					minimumThroughput: 2,
+					breakDurationMs: undefined,
 				})
 			).toThrow();
 		});
