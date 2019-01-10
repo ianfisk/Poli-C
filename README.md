@@ -4,6 +4,8 @@
 
 Poli-C (pronounced "policy") is a fault tolerance utility for JavaScript. Inspired by [Polly for .NET](https://github.com/App-vNext/Polly), this library's aim is to help applications handle transient failures in asynchronous actions.
 
+## [API Reference and Documentation](https://github.com/ianfisk/Poli-C/blob/master/docs/API.md)
+
 ## Supported Policies
 
  - `RetryPolicy` - Sometimes you just need to try again.
@@ -210,6 +212,8 @@ try {
 } catch (e) {
 	// this error may have been thrown immediately by circuit breaker if the
 	// failure threshold has been met in the sampling period
-	handleError(e);
+	log(e);
 }
 ```
+
+## Need more information about different policies and their APIs? See the [API Reference](https://github.com/ianfisk/Poli-C/blob/master/docs/API.md)!

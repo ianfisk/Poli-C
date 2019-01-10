@@ -1,5 +1,5 @@
 export interface CancellationToken {
-	isCancellationRequested: boolean;
+	readonly isCancellationRequested: boolean;
 	throwIfCancellationRequested: () => void;
 	register(callback: () => void): () => void;
 }
