@@ -1,5 +1,6 @@
+import { PolicyBuilder as Policy } from './policy-builder';
 import * as backoffs from './backoff-algorithms';
 
-export { RetryPolicy } from './retry-policy';
-export { CancellationTokenSource, CancellationToken } from './cancellation';
-export { backoffs };
+export default Policy;
+export { CancellationTokenSource } from './cancellation';
+export { Policy, backoffs };
