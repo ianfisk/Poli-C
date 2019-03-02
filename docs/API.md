@@ -100,7 +100,7 @@ An error predicate added to a `RetryPolicy` during construction is used by the p
 
 ### CircuitBreakerPolicy
 
-Detect failures and protect downstream systems by temporarily preventing clients from executing actions that are likely to fail.
+Detect failures and protect downstream systems by temporarily preventing clients from executing actions that are likely to fail. See Martin Fowler's [article](https://martinfowler.com/bliki/CircuitBreaker.html) for information on the Circuit Breaker design pattern and the various states a circuit breaker can be in.
 
 
 **Construction**
@@ -120,11 +120,11 @@ Return a new `CircuitBreakerPolicy`. There is a non-static counterpart to this m
 
 Parameters:
 - `samplingDurationMs`: The sliding time window in which successes/failures are considered. Invocations older than the period are discarded. This must be a number greater than 20 milliseconds.
-- `failureThreshold`: The threshold of failures at which the circuit should break. When the failure rate is determined to be greater than or equal to the failure threshold, the circuit is opened. This must be a number in the range (0, 1).
+- `failureThreshold`: The threshold of failures at which the circuit breaker should break. When the failure rate is determined to be greater than or equal to the failure threshold, the circuit is opened. This must be a number in the range (0, 1).
 - `minimumThroughput`: The minimum number of invocations that must be made in the sampling period before the failure threshold is examined. This must be a number greater than or equal to two.
-- `breakDurationMs`: The time the circuit should remain in the open state before transitioning to the half-open state. See the documentation for a [`CircuitBreakerPolicy`](#circuitbreakerpolicy) to learn more about these states. This must be a number greater than 20 milliseconds.
-- `onOpen`: _(Optional)_ A callback that is invoked when the circuit is opened.
-- `onClose`: _(Optional)_ A callback that is invoked when the circuit is closed.
+- `breakDurationMs`: The time the circuit breaker should remain in the open state before transitioning to the half-open state. This must be a number greater than 20 milliseconds.
+- `onOpen`: _(Optional)_ A callback that is invoked when the circuit breaker is opened.
+- `onClose`: _(Optional)_ A callback that is invoked when the circuit breaker is closed.
 
 
 **Instance Methods**
@@ -145,9 +145,9 @@ Parameters:
 
 **Errors in `executeAsync`**
 
-If an error is thrown when invoking `asyncFunc` that the policy handles (controlled by adding an error predicate using `Policy.handleError`), the circuit breaker may need to change its state:
-1) If the circuit is in the closed state, the circuit will be opened if the number of invocation attempts during the sampling period is greater than or equal to the policy's minimum throughput and the failure rate is greater than or equal to the policy's failure threshold. The circuit will stay open for the configured break duration until moving into the half-open state.
-1) If the circuit is in the half-open state, any error thrown will transition the circuit back into the open state. If `asyncFunc` is invoked successfully, the circuit will transition to the closed state.
+If an error is thrown when invoking `asyncFunc` that the policy handles (controlled by adding an error predicate using `Policy.handleError`), the circuit breaker may need to transition between one of its states:
+1) If the circuit breaker is in the closed state, the circuit breaker will be opened if the number of invocation attempts during the sampling period is greater than or equal to the policy's minimum throughput and the failure rate is greater than or equal to the policy's failure threshold. The circuit breaker will stay open for the configured break duration until moving into the half-open state.
+1) If the circuit breaker is in the half-open state, any error thrown will transition the circuit breaker back into the open state. If `asyncFunc` is invoked successfully, the circuit breaker will transition to the closed state.
 
 Note that any errors caught in a circuit breaker policy are rethrown after the circuit breaker has updated its internal state.
 
