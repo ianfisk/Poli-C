@@ -1,6 +1,6 @@
 {
 	"name": "poli-c",
-	"version": "0.0.3",
+	"version": "1.0.0",
 	"description": "A fault tolerance utility for JavaScript.",
 	"main": "dist/index.js",
 	"types": "typings/index.d.ts",
