@@ -7,7 +7,7 @@ export interface CancellationToken {
 export declare class CancellationTokenSource {
 	static createLinkedTokenSource(...tokens: CancellationToken[]): CancellationTokenSource;
 	constructor(millisecondsDelay?: number);
-	readonly token: CancellationToken | null;
+	readonly token: CancellationToken;
 	readonly isCancellationRequested: boolean;
 	cancel(): void;
 	dispose(): void;
