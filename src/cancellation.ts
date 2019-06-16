@@ -56,16 +56,16 @@ export class CancellationTokenSource {
 		}
 	}
 
-	private _token: CancellationToken | null;
+	private _token: CancellationToken | undefined;
 	private _registeredCancelActions: (() => void)[] = [];
 	private _linkedTokenUnregisterCallbacks: (() => void)[] = [];
 	private _cancelTimeout?: number;
 	private _isCanceled: boolean = false;
 	private _isDisposed: boolean = false;
 
-	get token() {
+	get token(): CancellationToken {
 		this.assertNotDisposed();
-		return this._token;
+		return this._token!;
 	}
 
 	get isCancellationRequested() {
@@ -86,7 +86,7 @@ export class CancellationTokenSource {
 
 	dispose() {
 		this._isDisposed = true;
-		this._token = null;
+		this._token = undefined;
 		this._linkedTokenUnregisterCallbacks.forEach(unregister => unregister());
 		this._registeredCancelActions = [];
 		this._linkedTokenUnregisterCallbacks = [];
